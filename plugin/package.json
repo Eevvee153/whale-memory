@@ -1,0 +1,72 @@
+{
+  "name": "dsh-plugin-whale-memory",
+  "version": "0.1.2",
+  "description": "深海记忆：让一个角色真的会忘记。拟人化的三层记忆、渐进风化与鲸落告别，为 DSH 的伴生 agent 提供一套会老去的记忆。",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "cordis",
+    "memory",
+    "agent-preset",
+    "companion"
+  ],
+  "license": "MIT",
+  "_comment": [
+    "=============== 深海记忆 包清单说明 ===============",
+    "type: module —— 本包是 ESM，源码直接用，不带构建链（宿主只 import，不编译）",
+    "main: lib/index.js —— 宿主半侧入口，导出 { name, inject, apply }（cordis 插件三件套）",
+    "exports['./cordis.patch.yml'] —— 让安装器能找到 bundle 补丁文件",
+    "dsh.bundle.patch —— 声明本包是 bundle：安装后本文件自动进层栈（global 平面插入一行）",
+    "dsh.compatibility.dshReleases —— 只声明测过的版本，不写宽泛范围；未知版本宁可让它报 unknown",
+    "files —— 只发运行必需；test/ 与 tools/ 不发（用户不需要，也不需要 node --test）",
+    "peerDependencies —— 运行时由宿主提供的模块：cordis 框架、宿主 LLM 服务、home 路径、默认模型",
+    "engines —— 与宿主一致（dsh 0.2.x 要求 node >= 22.12）",
+    "================================================"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./core/*": "./core/*",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "core",
+    "locale/*.json",
+    "icon.svg",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "node tools/test-all.js",
+    "check:params": "node tools/check-params.js",
+    "check:bundle": "node tools/check-bundle.js",
+    "verify": "npm run check:params && npm run check:bundle && npm test"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "compatibility": {
+      "dshReleases": {
+        "0.2.0-rc.1": "compatible",
+        "0.2.0-rc.2": "compatible"
+      }
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.4",
+    "@deepseek-ai/dsh-llm": "^0.2.0-rc.1",
+    "@deepseek-ai/dsh-tools": "^0.2.0-rc.1",
+    "@deepseek-ai/dsh-home-paths": "^0.2.0-rc.1",
+    "@deepseek-ai/dsh-agent-default-model": "^0.2.0-rc.1"
+  }
+}

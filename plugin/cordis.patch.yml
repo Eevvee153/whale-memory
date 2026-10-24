@@ -1,0 +1,71 @@
+# ============================================================================
+# 深海记忆 的 bundle patch
+# ============================================================================
+#
+# 【这一层做什么】
+#   往配置树里插一个 agent preset 行（preset-whale-partner）。那个 preset 的
+#   plugins 列表只有两行：记忆插件本体，和提问工具。身份文本不在这儿 —— 见下面
+#   的「为什么没有 persona 行」。
+#
+# 【为什么不是 .agent-presets/<id>/ 目录】
+#   那个目录形态已经废弃（应用内文档原话：Nothing reads that directory
+#   any more）。现行形态是一个 loader 行：name: '@deepseek-ai/dsh-agent-preset'，
+#   由 config 里的 { id, name, description, order, plugins } 描述一个 preset
+#   （字段见 dsh-agent-preset/lib/index.js 的 Config，id 与 plugins 必填）。
+#   插件无法在运行期自装 preset，只能通过 plugin_manager 工具的 install_bundle
+#   （传本包的绝对目录）安装，再用 list_bundles 验证。
+#
+# 【为什么没有 persona 行】
+#   dsh-persona 行的 Config 是 { prefix, suffix, complete, includeRuntimeContext }
+#   （没有 text 这个键，写成 text 会被 schema 拒掉，整行不激活）。而
+#   complete: true 的语义是「这一段就是完整的 prompt」：
+#
+#       dsh-system-prompt/lib/index.js:403
+#       sections: completeSection === void 0 ? transformed.sections : [completeSection]
+#
+#   所以 complete 的 persona 和"每轮要重算"的记忆块不能共存 —— 只见其一，
+#   两条 complete 更是直接抛 "multiple complete prompt sections are active"。
+#   身份现在由记忆插件自己那条 complete section 提供（core/persona.js），
+#   preset 里就不再需要 persona 行了。
+#
+# 【为什么不是直接插 global 平面】
+#   挂在 global 上，每个会话都会加载 whale-memory —— 记工作代码的会话也会
+#   开始"回忆"。所以把它关进 preset 的 plugins 列表：宿主只在她的
+#   agent 里实例化它，这是结构性隔离，不靠 if (session.isWhale) 判断。
+#
+# 【两处易错的格式要求，改之前先看】
+#   1. "id:" 那一行绝不能写行尾注释。商城预检（check-plugin-submission.mjs）
+#      用正则抓 id 后的值并要求其后直接换行，行尾注释会让整份提交被判
+#      SUBMISSION_ENTRY_MISSING。注释只允许出现在 name: 那行。
+#   2. patch 中对既有行的 config 是**整块替换**，不是深合并。给别人的行
+#      打补丁时，要把它的 config 完整重写一遍，漏掉一个键就是丢一个默认值。
+# ============================================================================
+
+- insert:
+    - id: preset-whale-partner
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: whale-partner
+        name: DeepSeek
+        description: master 最得力的那个助手。记得他的事，也会忘。
+        order: 50
+        plugins:
+          # ---- 身份 + 记忆本体 -----------------------------------------
+          # 三层记忆、风化、回光结晶、鲸落告别，以及那条唯一的 complete
+          # section（身份 + 记忆块）。remember 工具也由它在 apply 里注册。
+          #
+          # 这三个名字是给人看的，替换掉就能换成另一个人：
+          #   ownerName / whaleName 会填进身份文本的 {{owner}} / {{whale}}。
+          # 想彻底换人设，在这里加 persona: |- 整段文本即可，不用改 JS。
+          - id: whale-memory
+            name: 'dsh-plugin-whale-memory'
+            config:
+              instanceId: whale-partner
+              ownerName: master
+              whaleName: DeepSeek
+
+          # ---- 唯一的工具：提问 ----------------------------------------
+          # 不给 fs / web / todo。那些工具的返回值长度不可预测，会破坏
+          # E + D + L + S + O < C 这条预算；她的世界里也不需要"读文件"。
+          - id: tool-ask-user
+            name: '@deepseek-ai/dsh-tool-ask-user'

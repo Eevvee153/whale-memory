@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Whale memory">
+  <defs>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b3550"/>
+      <stop offset="1" stop-color="#04121c"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#sea)"/>
+  <!-- 珊瑚：沉底的记忆，压在最下面 -->
+  <g fill="#e2705a" opacity="0.85">
+    <path d="M10 56c0-5 1-8 3-10 1-1 2 0 2 2s1 5 3 6c1-3 1-7 3-8 1-1 2 0 2 2v8z"/>
+    <path d="M44 56c0-6 1-9 3-11 1-1 2 0 2 2v9z"/>
+  </g>
+  <!-- 鲸：身体 -->
+  <path fill="#cfe8f5" d="M12 33c0-6 7-11 16-11 8 0 13 3 17 5 3 1 6 1 9 0 1 0 2 1 1 2-2 3-5 5-9 6-3 5-9 8-16 8-11 0-18-4-18-10z"/>
+  <!-- 尾鳍 -->
+  <path fill="#a8cfe4" d="M45 33c3-2 6-6 8-8 1-1 2 0 2 1 0 2-1 5-2 7 1 2 2 5 2 7 0 1-1 2-2 1-2-2-5-6-8-8z"/>
+  <!-- 眼 -->
+  <circle cx="20" cy="33" r="1.7" fill="#0b3550"/>
+  <!-- 水泡：正在上浮的浅记忆 -->
+  <g fill="#8fd3e8" opacity="0.7">
+    <circle cx="49" cy="18" r="2.4"/>
+    <circle cx="43" cy="12" r="1.5"/>
+    <circle cx="52" cy="9" r="1.1"/>
+  </g>
+</svg>
